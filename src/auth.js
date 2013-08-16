@@ -45,7 +45,6 @@ function changePassword(req, res){
 }
 
 function getSettings(req, res){
-    console.log('getting settings')
     db.getSettings(req.session.userId, function(error, result){
         res.send(JSON.stringify(result || {}));
     })

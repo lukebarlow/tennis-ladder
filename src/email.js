@@ -77,10 +77,6 @@ function sendChallenge(player, challenger, challenged, callback){
         text : ' ',
         attachment  : body()
     }
-
-    console.log('email details')
-    console.log(emailDetails)
-
     server.send(emailDetails, callback)
 }
 
