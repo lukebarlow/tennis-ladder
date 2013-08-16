@@ -63,7 +63,7 @@ function sendChallenge(player, challenger, challenged, callback){
     if (!player.settings.email){
         console.log('No email address, so cannot send challenge to ' + player.name)
         console.log(player)
-        callback('No email')
+        if (callback) callback('No email')
         return;
     }
 
@@ -94,7 +94,7 @@ function sendMatchReport(player, match, callback){
     if (!player.settings.email){
         console.log('No email address, so cannot send match report to ' + player.name)
         console.log(player)
-        callback('No email')
+        if (callback) callback('No email')
         return;
     }
 
