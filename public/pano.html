@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Tenn16</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <script type="text/javascript" src="js/embedded_viewer_app.js"></script>
+    <style>
+      body {
+        margin:0;
+        border:0;
+        overflow:hidden;
+        background-color:black;
+      }
+    </style>
+    <script>
+      function onLoad() {
+        (new EmbeddedPanoViewer(document.getElementById('pano-canvas'))).init();
+      }
+    </script>
+  </head>
+  <body onload="onLoad()" style="cursor: move;">
+  <canvas id="pano-canvas" width="877" height="875" style="width: 877px; height: 875px;"></canvas>
+  
+  </body>
+    </html>

@@ -1,0 +1,103 @@
+BODY {
+    padding:0px;
+    margin:0px;
+    font-family:helvetica;
+    width:100%;
+    height:100%;
+}
+
+IFRAME {
+    width:100%;
+    height:100%;
+    position:absolute;
+    border-width:0px;
+    top:0px;
+}
+
+A {
+    color:#3794cd;
+    cursor:pointer;
+}
+
+h1 {
+    font-size:150%;
+    font-weight:bold;
+    white-space:nowrap;
+}
+
+.match TABLE {
+    margin:10px;
+    border-spacing:0;
+    border-collapse:collapse;
+}
+
+.match TABLE TR TD{
+    border-bottom:1px solid gray;
+    border-right:1px solid gray;
+    min-width:20px;
+    text-align:center;
+    padding:4px;
+}
+
+.match TABLE TR:first-child TD {
+    border-top:1px solid gray;
+}
+
+.match TABLE TR TD:first-child {
+    border-left:1px solid gray;
+    min-width:100px;
+}
+
+#settingsTable TD:first-child,
+#changePasswordTable TD:first-child {
+    text-align:right;
+}
+
+#main {
+    position:absolute;
+    display:block;
+    margin-top:calc(10% - 60px);
+    margin-left:calc(20% - 60px);
+    margin-top:-webkit-calc(10% - 60px);
+    margin-left:-webkit-calc(20% - 60px);
+    width:60%;
+    height:60%;
+    white-space:nowrap;
+    overflow:hidden;
+    background-color:white;
+    border-radius:10px;
+    padding:60px;
+    opacity:0.8;
+}
+
+.page {
+    width:23%;
+    min-width:220px;
+    height:100%;
+    display:inline-block;
+    white-space:normal;
+    overflow-y:auto;
+    vertical-align: top;
+    margin-right:2%;
+}
+
+#login INPUT {
+    width:140px;
+}
+
+#rungs {
+    padding-top:30px;
+}
+
+.rung {
+    white-space:nowrap;
+    position:absolute;
+}
+
+.challengeText {
+    font-size:8pt;
+}
+
+.challenge {
+    margin-bottom:10px;
+}

@@ -1,0 +1,127 @@
+<html>
+<head>
+    <title>tenn16.co.uk</title>
+    <script src="js/d3.v3.js"></script>
+    <script src="js/dialog.js"></script>
+    <script src="js/match.js"></script>
+    <script src="js/ladder.js"></script>
+    <script src="js/challenge.js"></script>
+    <script src="js/tenn16.js"></script>
+
+    <link href="css/tenn16.css" type="text/css" rel="stylesheet"></link>
+    <link href="css/dialog.css" type="text/css" rel="stylesheet"></link>
+</head>
+<body onload="init()">
+
+<iframe src="pano.html?bsv&imageurl=http://localhost:8081/images/tennis.jpg&fullsize=4096%2C2048&croppedsize=4096%2C1380&offset=0%2C480"></iframe>
+
+<div class="modal-backdrop fade inactive" onclick="hideDialog()"></div>
+<div id="dialog" class="modal fade inactive">
+    <div class="modal-header">
+        <button type="button" class="close" onclick="hideDialog()">close</button>
+    </div>
+    <div class="modal-body" id="recordAMatch">
+        <h1>record a match</h1>
+        please enter the match details
+        <br />
+        <br />
+        <div style="float:left">
+            <select id="playerA"></select><br />
+            <select id="playerB"></select>
+        </div>
+        <div id="score"></div>
+        <br />
+        <br />
+        <br />
+        <button id="addMatch" style="float:right">add match</button>
+    </div>
+    <div class="modal-body" id="settings">
+        <h1>settings</h1>
+        <table id="settingsTable">
+            <tr>
+                <td>email me when I am challenged</td>
+                <td><input id="emailMyChallenge" type="checkbox"></td>
+            </tr>
+            <tr>
+                <td>email me when any challenge happens</td>
+                <td><input id="emailAnyChallenge" type="checkbox"></td>
+            </tr>
+            <tr>
+                <td>email me when my matches are recorded</td>
+                <td><input id="emailMyMatch" type="checkbox"></td>
+            </tr>
+            <tr>
+                <td>email me when any match is recorded</td>
+                <td><input id="emailAnyMatch" type="checkbox"></td>
+            </tr>
+            <tr>
+                <td colspan="2" style="text-align:center">email address &nbsp;&nbsp;
+                    <input id="email" type="text" style="width:250px"></td>
+            </tr>
+            <tr>
+                <td colspan="2" style="text-align:center">
+                    <a id="changePasswordButton">change password</a></td>
+            </tr>
+
+        </table>
+       
+        <button id="saveSettings" style="float:right">save</button>
+    </div>
+    <div class="modal-body" id="changePassword">
+        <h1>change password</h1>
+        <table id="changePasswordTable">
+            <tr>
+                <td>old password</td><td><input id="oldPassword" type="password"></td>
+            </tr>
+            <tr>
+                <td>new password</td><td><input id="newPassword" type="password"></td>
+            </tr>
+            <tr>
+                <td>confirm new password</td><td><input id="confirmNewPassword" type="password"></td>
+            </tr>
+        </table>
+       
+        <button id="saveNewPassword" style="float:right">save</button>
+    </div>
+    <div class="modal-body" id="confirmChallenge" style="max-width:600px">
+        
+    </div>
+</div>
+
+<div id="main">
+    <div style="width:100%;text-align:right;height:0px">
+        <a style="position:relative;top:-40px;left:35px" id="settingsButton">settings</a>
+        &nbsp;&nbsp;<a style="position:relative;top:-40px;left:35px" id="logout">logout</a>
+    </div>
+
+<div class="page" id="login" style="overflow:visible">
+    <h1>login</h1>
+    <table id="loginTable">
+        <tr><td style="text-align:right">name</td><td><input type="text" id="name"></td></tr>
+        <tr><td>password</td><td><input type="password" id="password"></td></tr>
+        <tr><td></td><td style="text-align:right"><button id="loginButton">login</button></td></tr>
+    </table>
+</div>
+<div class="page" id="ladder">
+    <h1>ladder</h1>
+    <div id="rungs" style="position:absolute"></div>
+</div>
+<div class="page" id="recentMatches">
+
+<h1>recent matches</h1>
+<a id="recordAMatchButton" style="font-size:10pt;display:none">record a match
+<br />
+<br />
+</a>
+<div id="matches"></div>
+
+</div>
+<div class="page" id="challenges">
+    <h1>challenges</h1>
+</div>
+</div>
+
+
+
+</body>
+</html>
