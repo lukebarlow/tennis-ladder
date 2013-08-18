@@ -9,6 +9,6 @@ module.exports = {
     },
     siteName : 'tenn16',
     domainName : 'tenn16.co.uk',
-    mongoDbName : 'tenn16'
-
+    mongoDbName : 'tenn16',
+    port : 8080
 }

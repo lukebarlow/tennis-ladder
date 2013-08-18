@@ -204,10 +204,6 @@ function getSettings(userId, callback){
 }
 
 function saveSettings(userId, settings, callback){
-
-    console.log('saving settings')
-    console.log(settings)
-
     userId = db.ObjectId(userId);
     db.player.update({_id : userId},
         { $set : {settings : settings}

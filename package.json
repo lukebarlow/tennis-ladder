@@ -6,7 +6,8 @@
     "express": "3.x",
     "mongojs" : "latest",
     "MD5" : "latest",
-    "emailjs": "0.3.3"
+    "emailjs": "0.3.3",
+    "async" : "latest"
   },
   "devDependencies": {
      "mocha": "latest", 

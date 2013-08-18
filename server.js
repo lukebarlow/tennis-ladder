@@ -1,5 +1,5 @@
 var app = require('./'),
-	port = 8082;
+	port = require('./config').port;
 
 app.listen(port);
 
