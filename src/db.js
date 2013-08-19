@@ -199,7 +199,7 @@ function getOutstandingChallenges(callback){
 function getSettings(userId, callback){
     userId = db.ObjectId(userId);
     db.player.find({_id : userId}, function(error, result){
-        callback(null, result[0].settings)
+        callback(null, result && result[0].settings || {})
     })
 }
 
