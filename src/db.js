@@ -9,6 +9,8 @@ var dbUrl = require('../config').mongoDbName,
 // the db layer object for tenn16
 module.exports = {
     getPlayers : getPlayers,
+    addPlayer : addPlayer,
+    moveToPosition : moveToPosition,
     addMatch : addMatch,
     setPassword : setPassword,
     authenticate : authenticate,
@@ -30,6 +32,72 @@ function getPlayer(player, callback){
     db.player.find(player, {password:0}, function(err,a){
         callback(null, a[0])
     })
+}
+
+// moves the player to the right position, and moves everyone below down
+// one place
+function moveToPosition(playerName, position, callback){
+    // get current position
+    db.player.find({name : playerName}, function(err, players){
+        // everything inbetween moves up or down one step
+        var player = players[0];
+        var move = position > player.ladderPosition ? +1 : -1;
+
+        if (position > player.ladderPosition){
+            db.player.update(
+                {
+                    ladderPosition :{
+                        $gt : player.ladderPosition,
+                        $lte : position
+                    }
+                },
+                {$inc : {ladderPosition : -1}},
+                {multi : true},
+                afterBulkMove
+            )
+        }else{
+            db.player.update(
+                {
+                    ladderPosition :{
+                        $gte : position,
+                        $lt : player.ladderPosition
+                    }
+                },
+                {$inc : {ladderPosition : 1}},
+                {multi : true},
+                afterBulkMove
+            )
+        }
+
+        function afterBulkMove(err, result){
+            // finally move the player to the right position
+            db.player.update(
+                {_id : player._id}, 
+                {$set : {ladderPosition : position}}, 
+                callback)
+        }
+
+    })
+}
+
+function addPlayer(name, password, position, callback){
+    // check name is unique
+    db.player.find({name : name}, function(err, result){
+        if (result.length){
+            console.log('name already exists');
+            if (callback) callback('name already exists');
+            return;
+        }
+
+        // now insert the player
+        db.player.insert(
+            {name : name, password : hashPassword(password), ladderPosition : Infinity},
+             function(){
+            // then set the position
+            moveToPosition(name, position, callback)
+        })
+    })
+    
 }
 
 // returns player who won the match (returns a full dictionary).
