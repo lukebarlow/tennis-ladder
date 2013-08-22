@@ -73,7 +73,7 @@ function sendChallenge(player, challenger, challenged, callback){
     console.log(challenger + ' challenged ' + challenged)
 
     var emailDetails = {
-        from : 'luke.barlow@gmail.com',
+        from : config.email.user,
         to : player.settings.email,
         subject : config.siteName + ' : ' + challenger + ' challenged ' + challenged,
         text : ' ',
@@ -100,7 +100,7 @@ function sendMatchReport(player, match, callback){
     console.log(match)
 
     server.send({
-        from : 'luke.barlow@gmail.com',
+        from : config.email.user,
         to : player.settings.email,
         subject : config.siteName + ' : ' + matchString(match),
         text : ' ',
@@ -112,7 +112,7 @@ function sendMatchReport(player, match, callback){
 // just for testing the SMTP is all working
 function sendTestEmail(to, subject, message){
     var emailDetails = {
-        from : 'luke.barlow@gmail.com',
+        from : config.email.user,
         to : to,
         subject : subject || 'test email from tenn16.co.uk',
         text : message || 'test'
