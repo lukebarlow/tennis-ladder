@@ -2,7 +2,8 @@ var config = require('../config');
 
 module.exports = {
     sendEmailsAboutChallenge : sendEmailsAboutChallenge,
-    sendEmailsAboutMatch : sendEmailsAboutMatch
+    sendEmailsAboutMatch : sendEmailsAboutMatch,
+    sendTestEmail : sendTestEmail
 };
 
 var server = require("emailjs/email").server.connect({
@@ -57,7 +58,8 @@ function sendEmailsAboutMatch(match, callback){
     })
 }
 
-// challenger and challenged are names Player is the whole dict
+// challenger and challenged are names Player is the whole dict of the player
+// we want to send the email to
 function sendChallenge(player, challenger, challenged, callback){
 
     if (!player.settings.email){
@@ -105,6 +107,22 @@ function sendMatchReport(player, match, callback){
         attachment  : body()
     }, callback)
 
+}
+
+// just for testing the SMTP is all working
+function sendTestEmail(to, subject, message){
+    var emailDetails = {
+        from : 'luke.barlow@gmail.com',
+        to : to,
+        subject : subject || 'test email from tenn16.co.uk',
+        text : message || 'test'
+    }
+    server.send(emailDetails, function(error, result){
+        console.log('----- error ------')
+        console.log(error)
+        console.log('------result ------')
+        console.log(result)
+    })
 }
 
 function body(){
