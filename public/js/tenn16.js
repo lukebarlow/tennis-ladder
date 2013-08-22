@@ -1,3 +1,11 @@
+// we override d3.json so that it always adds r=timestamp on the end
+// of requests
+var _d3json = d3.json;
+d3.json = function(url, callback){
+    var prefix = url.indexOf('?') > -1 ? '&' : '?';
+    _d3json(url + prefix + 'r=' + Date.now(), callback)
+}
+
 // global data we keep around
 var players,
     matches,
