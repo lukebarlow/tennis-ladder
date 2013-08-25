@@ -80,7 +80,7 @@ function moveToPosition(playerName, position, callback){
     })
 }
 
-function addPlayer(name, password, position, callback){
+function addPlayer(name, password, position, email, callback){
     // check name is unique
     db.player.find({name : name}, function(err, result){
         if (result.length){
@@ -91,7 +91,18 @@ function addPlayer(name, password, position, callback){
 
         // now insert the player
         db.player.insert(
-            {name : name, password : hashPassword(password), ladderPosition : Infinity},
+            {
+                name : name, 
+                password : hashPassword(password), 
+                ladderPosition : Infinity,
+                settings : {
+                    email : email,
+                    emailMyChallenge : true,
+                    emailAnyChallenge : true,
+                    emailMyMatch : true,
+                    emailAnyMatch : true
+                }
+            },
              function(){
             // then set the position
             moveToPosition(name, position, callback)
