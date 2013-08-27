@@ -6,7 +6,7 @@
     "express": "3.x",
     "mongojs" : "latest",
     "MD5" : "latest",
-    "emailjs": "0.3.3",
+    "nodemailer" : "latest",
     "async" : "latest"
   },
   "devDependencies": {

@@ -1,4 +1,5 @@
-var config = require('../config');
+var nodemailer = require("nodemailer"),
+    config = require('../config');
 
 module.exports = {
     sendEmailsAboutChallenge : sendEmailsAboutChallenge,
@@ -6,38 +7,67 @@ module.exports = {
     sendTestEmail : sendTestEmail
 };
 
-var server = require("emailjs/email").server.connect({
-    host        : config.email.host,
-    user        : config.email.user,
-    password    : config.email.password,
-    ssl         : true
-});
+var transport;
+
+// lazy building of the transport object
+function getTransport(){
+    if (!transport){
+        transport = nodemailer.createTransport("SMTP",{
+            service: "Gmail",
+            auth: {
+                user: config.email.user,
+                pass: config.email.password
+            }
+        })
+    }
+    return transport;
+}
+
+function closeTransport(){
+    if (transport) transport.close();
+    transport = null;
+}
 
 // figures out which players need an email about a new challenge, and sends
 // that email. Challenger and challenged arguments should be ObjectIds of
 // the players involved in the challenge
-function sendEmailsAboutChallenge(challenger, challenged, callback){
+function sendEmailsAboutChallenge(challengerId, challengedId, callback){
     var db = require('./db');
 
     db.getPlayers(function(error, players){
-        var challengerName, challengedName;
+        var challenger, challenged;
         players.forEach(function(player){
-            if (player._id.equals(challenger)){
-                challengerName = player.name;
+            if (player._id.equals(challengerId)){
+                challenger = player;
             }
-            if (player._id.equals(challenged)){
-                challengedName = player.name;
+            if (player._id.equals(challengedId)){
+                challenged = player;
             }
-
         });
+
+        var emailsSent = 0,
+            callbacksCounted = 0;
+
         players.forEach(function(player, i){
             player.settings = player.settings || {};
             // player gets an email if they're involved in the challenge and
             // have 'emailMyChallenge' preference, or they have 'emailAnyChallenge'
-            if (
-                (player.settings.emailMyChallenge && (player._id.equals(challenger) || player._id.equals(challenged)))
-                || player.settings.emailAnyChallenge){
-                sendChallenge(player, challengerName, challengedName, callback)
+
+            var isChallenger = player._id.equals(challengerId),
+                isChallenged = player._id.equals(challengedId),
+                isParticipant =  isChallenger || isChallenged;
+                replyTo = null;
+
+            if ((player.settings.emailMyChallenge && isParticipant) || player.settings.emailAnyChallenge){
+                emailsSent++;
+                sendChallenge(player, challenger, challenged, isParticipant, function(){
+                    callbacksCounted++;
+                    if (callbacksCounted >= emailsSent){
+                        console.log('all emails sent')
+                        closeTransport();
+                        if (callback) callback();
+                    };
+                })
             }
         })
     })
@@ -46,13 +76,25 @@ function sendEmailsAboutChallenge(challenger, challenged, callback){
 function sendEmailsAboutMatch(match, callback){
     var db = require('./db');
     db.getPlayers(function(error, players){
+
+        var emailsSent = 0,
+            callbacksCounted = 0;
+
         players.forEach(function(player, i){
             player.settings = player.settings || {};
             // player gets an email if they're involved in the challenge and
             // have 'emailMyChallenge' preference, or they have 'emailAnyChallenge'
             if ((player.settings.emailMyMatch && (player._id.equals(match.playerA._id) || player._id.equals(match.playerB._id)))
-                || player.settings.emailAnyMatch){
-                sendMatchReport(player, match, callback)
+                    || player.settings.emailAnyMatch){
+                emailsSent++;
+                sendMatchReport(player, match, function(){
+                    callbacksCounted++;
+                    if (callbacksCounted >= emailsSent){
+                        console.log('all emails sent')
+                        closeTransport();
+                        if (callback) callback();
+                    }
+                })
             }
         })
     })
@@ -60,7 +102,7 @@ function sendEmailsAboutMatch(match, callback){
 
 // challenger and challenged are names Player is the whole dict of the player
 // we want to send the email to
-function sendChallenge(player, challenger, challenged, callback){
+function sendChallenge(player, challenger, challenged, isParticipant, callback){
 
     if (!player.settings.email){
         console.log('No email address, so cannot send challenge to ' + player.name)
@@ -69,17 +111,58 @@ function sendChallenge(player, challenger, challenged, callback){
         return;
     }
 
-    console.log('sending an email to ' + player.name)
-    console.log(challenger + ' challenged ' + challenged)
+    var replyTo,
+        isChallenger = player._id == challenger._id;
+
+    // if you're in the game, then the reply to will reply to the opponent
+    if (isParticipant){
+        replyTo = isChallenger ? challenged.settings.email : challenger.settings.email;
+    }
+
+    console.log('sending an email to ' + player.name + '(' + player.settings.email + ')');
+    console.log(challenger.name + ' challenged ' + challenged.name)
 
     var emailDetails = {
         from : config.email.user,
         to : player.settings.email,
-        subject : config.siteName + ' : ' + challenger + ' challenged ' + challenged,
+        subject : config.siteName + ' : ' + challenger.name + ' challenged ' + challenged.name,
         text : ' ',
-        attachment  : body()
+        html  : isParticipant ? 
+                challengeEmailBody(isChallenger ? challenged : challenger, replyTo) : 
+                body()
     }
-    server.send(emailDetails, callback)
+
+    if (replyTo) emailDetails.replyTo = replyTo;
+
+    getTransport().sendMail(emailDetails, function(error, result){
+        if (error){
+            console.log('EMAIL ERROR!')
+            console.log(error)
+        }else{
+            console.log('email result', result);
+            if (callback) callback();
+        }
+    });
+}
+
+function challengeEmailBody(opponent, includeReplyMessage){
+    var html = '<html><body><a href="http://'+config.domainName+'">'+config.domainName + '</a><br />'
+    html +=  '<br /><b>' + opponent.name + '</b><br />'
+    html += contactDetailsHtml(opponent)
+    if (includeReplyMessage) html += '<br ><br />Hit reply to email ' + opponent.name + '.'
+    html += '</body></html>';
+    return html;
+}
+
+function contactDetailsHtml(player){
+    var html = '';
+    if (player.settings.email){
+        html += 'email : ' + player.settings.email + '<br />'
+    }
+    if (player.settings.phoneNumber){
+        html += 'phone number : ' + player.settings.phoneNumber + '<br />'
+    }
+    return html;
 }
 
 // converts a match to a string
@@ -99,13 +182,15 @@ function sendMatchReport(player, match, callback){
     console.log('sending a match report to ' + player.name)
     console.log(match)
 
-    server.send({
+    var emailDetails = {
         from : config.email.user,
         to : player.settings.email,
         subject : config.siteName + ' : ' + matchString(match),
         text : ' ',
-        attachment  : body()
-    }, callback)
+        html  : body()
+    }
+
+    getTransport().sendMail(emailDetails, callback);
 
 }
 
@@ -117,7 +202,7 @@ function sendTestEmail(to, subject, message){
         subject : subject || 'test email from tenn16.co.uk',
         text : message || 'test'
     }
-    server.send(emailDetails, function(error, result){
+    getTransport().sendMail(emailDetails, function(error, result){
         console.log('----- error ------')
         console.log(error)
         console.log('------result ------')
@@ -126,6 +211,6 @@ function sendTestEmail(to, subject, message){
 }
 
 function body(){
-    html = '<html><body><a href="http://'+config.domainName+'">'+config.domainName+'</a></body></html>';
-    return [{data:html, alternative:true}];
+    return '<html><body><a href="http://'+config.domainName+'">'+config.domainName+'</a></body></html>';
 }
+

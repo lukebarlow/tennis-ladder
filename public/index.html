@@ -1,7 +1,7 @@
 <html>
 <head>
     <title>tenn16.co.uk</title>
-    <script src="js/d3.v3.js"></script>
+    <script src="js/d3.v3.min.js"></script>
     <script src="js/dialog.js"></script>
     <script src="js/match.js"></script>
     <script src="js/ladder.js"></script>
@@ -13,7 +13,7 @@
 </head>
 <body onload="init()">
 
-<iframe src="pano.html?bsv&imageurl=/images/tennis.jpg&fullsize=4096%2C2048&croppedsize=4096%2C1380&offset=0%2C480"></iframe>
+<iframe src="pano.html?bsv&imageurl=/images/tennis_30.jpg&fullsize=4096%2C2048&croppedsize=4096%2C1380&offset=0%2C480"></iframe>
 
 <div class="modal-backdrop fade inactive" onclick="hideDialog()"></div>
 <div id="dialog" class="modal fade inactive">
@@ -55,8 +55,15 @@
                 <td><input id="emailAnyMatch" type="checkbox"></td>
             </tr>
             <tr>
-                <td colspan="2" style="text-align:center">email address &nbsp;&nbsp;
+                <td colspan="2" style="text-align:right">email address &nbsp;&nbsp;
                     <input id="email" type="text" style="width:250px"></td>
+            </tr>
+            <tr>
+                <td colspan="2" style="text-align:right">phone number (optional) &nbsp;&nbsp;
+                    <input id="phoneNumber" type="text" style="width:250px"><br>
+                <span style="font-size:8pt">If you supply it, your phone number will be sent to your opponent
+                    when you challenge or are challenged</span>
+                </td>
             </tr>
             <tr>
                 <td colspan="2" style="text-align:center">

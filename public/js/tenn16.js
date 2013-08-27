@@ -1,9 +1,6 @@
-// we override d3.json so that it always adds r=timestamp on the end
-// of requests
-var _d3json = d3.json;
-d3.json = function(url, callback){
+function addDateToUrl(url){
     var prefix = url.indexOf('?') > -1 ? '&' : '?';
-    _d3json(url + prefix + 'r=' + Date.now(), callback)
+    return url + prefix + 'r=' + Date.now();
 }
 
 // global data we keep around
@@ -133,15 +130,15 @@ function login(name, password, callback){
 }
 
 function refresh(){
-    d3.json('ladder', function(_players){
+    d3.json(addDateToUrl('ladder'), function(_players){
         players = _players;
         
-        d3.json('recentMatches', function(_matches){
+        d3.json(addDateToUrl('recentMatches'), function(_matches){
             matches = _matches;
             drawMatches(matches);
         })
 
-        d3.json('challenges', function(_challenges){
+        d3.json(addDateToUrl('challenges'), function(_challenges){
             challenges = _challenges;
             drawChallenges(challenges);
             drawLadder(players)
@@ -194,28 +191,24 @@ function initSettingsButtons(){
                     d3.select('#changePasswordTable').call(shake);
                 }
             })
-    })
-
-
-    
-
-    
+    }) 
 }
 
 var checkboxIds = ['emailMyChallenge','emailAnyChallenge','emailMyMatch','emailAnyMatch']
 
 function initSettings(){
-    d3.json('settings', function(settings){
+    d3.json(addDateToUrl('settings'), function(settings){
         
         // fill the settings
         checkboxIds.forEach(function(id){
             d3.select('#' + id).property('checked', settings[id] || false)
         })
         d3.select('#email').property('value', settings.email || '')
-
+        d3.select('#phoneNumber').property('value', settings.phoneNumber || '')
         d3.select('#saveSettings').on('click', function(){
             var settings = {
-                email : d3.select('#email').property('value')
+                email : d3.select('#email').property('value'),
+                phoneNumber : d3.select('#phoneNumber').property('value')
             }
 
             checkboxIds.forEach(function(id){
