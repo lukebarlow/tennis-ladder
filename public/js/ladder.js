@@ -69,7 +69,7 @@ function drawLadder(ladder){
     var oldOrder = d3.select('#rungs')
         .selectAll('div.rung')
         .data()
-        .sort(function(a,b){return a.ladderPosition > b.ladderPosition})
+        .sort(function(a,b){return a.ladderPosition - b.ladderPosition})
         .map(function(a){return a._id})
 
     if (oldOrder){
