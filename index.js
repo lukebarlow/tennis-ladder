@@ -16,6 +16,7 @@ app.use('/recentMatches', ladder.recentMatches)
 
 app.get('/addMatch', auth.checkAuth, ladder.addMatch)
 app.get('/addChallenge', auth.checkAuth, ladder.addChallenge)
+app.get('/invite', auth.checkAuth, ladder.invite)
 app.post('/login', auth.login)
 app.post('/changePassword', auth.checkAuth, auth.changePassword)
 app.get('/settings', auth.checkAuth, auth.getSettings)

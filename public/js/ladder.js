@@ -12,6 +12,14 @@ function challengeConfirmText(challenge){
 
 }
 
+function invitationText(invitation){
+    var invited = getName(invitation.invited);
+    return 'Invite ' + invited + ' to a match. You will both get an email with ' +
+           'each other\'s contact details. This match will not show up in the ' +
+           'challenges, and there\'s no time limit, but it will still affect the ' +
+           'order of the ladder if the lower down person wins.'
+}
+
 function drawLadder(ladder){
 
     function top(d,i){return i*20 + 'px'}
@@ -33,7 +41,7 @@ function drawLadder(ladder){
             rung.append('span')
                 .attr('class','challengeText')
                 .html('&nbsp;&nbsp;' + challenged + ' days to play')
-        }else if (diff >= 1 && diff <= 2){
+        }else if (diff >= 1 && diff <= 3){
             
             rung.append('a')
                 .attr('class','challengeText')
@@ -59,8 +67,32 @@ function drawLadder(ladder){
                                 refresh();
                             })
                         })
-
+                })
+        }else if (diff != 0){
+            rung.append('a')
+                .attr('class','inviteText')
+                .html('&nbsp;&nbsp;invite')
+                .on('click', function(){
+                    showDialog('invite')
                     
+                    var invitation = {
+                        inviter : userId,
+                        invited : d._id
+                    }
+
+                    d3.select('#invite')
+                        .text('')
+                        .html(invitationText(invitation))
+                        .append('button')
+                        .style('float','right')
+                        .style('margin','20px')
+                        .text('confirm')
+                        .on('click', function(){
+                            hideDialog();
+                            d3.text('invite?invitation=' + JSON.stringify(invitation), function(result){
+                                refresh();
+                            })
+                        })
                 })
         }
     }

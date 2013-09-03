@@ -20,7 +20,7 @@ function hideDialog() {
 }
 
 function setVisibleDialog(visibleId) {
-    var dialogIds = ['recordAMatch','confirmChallenge','settings','changePassword'];
+    var dialogIds = ['recordAMatch','confirmChallenge','settings','changePassword','invite'];
     dialogIds.forEach(function(id){
         d3.select('#' + id).style('display', id == visibleId ? 'block' : 'none');
     })

@@ -4,7 +4,8 @@ var nodemailer = require("nodemailer"),
 module.exports = {
     sendEmailsAboutChallenge : sendEmailsAboutChallenge,
     sendEmailsAboutMatch : sendEmailsAboutMatch,
-    sendTestEmail : sendTestEmail
+    sendTestEmail : sendTestEmail,
+    sendInvitationEmails : sendInvitationEmails
 };
 
 var transport;
@@ -71,6 +72,52 @@ function sendEmailsAboutChallenge(challengerId, challengedId, callback){
             }
         })
     })
+}
+
+function sendInvitationEmails(invitation, callback){
+    var db = require('./db');
+
+    db.getPlayer({_id : invitation.inviter}, function(error, inviter){
+        db.getPlayer({_id : invitation.invited}, function(error, invited){
+
+            var sent = 0;
+            function sentHandler(error, result){
+                if (error){
+                    console.log('EMAIL ERROR!')
+                    console.log(error)
+                }
+                sent++;
+                if (sent >= 2 && callback){
+                    callback();
+                }
+            }
+
+            // the email to the invited
+            var emailDetails = {
+                from : config.email.user,
+                to : invited.settings.email,
+                replyTo : inviter.settings.email,
+                subject : config.siteName + ' : ' + inviter.name + ' has invited you to play',
+                text : ' ',
+                html  : invitationBody(invited, inviter)
+            }
+
+            getTransport().sendMail(emailDetails, sentHandler);
+
+            // email to the inviter
+            var emailDetails = {
+                from : config.email.user,
+                to : inviter.settings.email,
+                replyTo : invited.settings.email,
+                subject : config.siteName + ' : You have invited ' + invited.name + ' to play',
+                text : ' ',
+                html  : invitationBody(inviter, invited)
+            }
+
+            getTransport().sendMail(emailDetails, sentHandler);
+        })
+    })
+
 }
 
 function sendEmailsAboutMatch(match, callback){
@@ -143,6 +190,16 @@ function sendChallenge(player, challenger, challenged, isParticipant, callback){
             if (callback) callback();
         }
     });
+}
+
+function invitationBody(me, opponent){
+    html =  '<br /><b>' + me.name + '</b><br />'
+    html += contactDetailsHtml(me)
+    html +=  '<br /><b>' + opponent.name + '</b><br />'
+    html += contactDetailsHtml(opponent)
+    html += '<br><br>'
+    html += 'Hit reply to email ' + opponent.name;
+    return html
 }
 
 function challengeEmailBody(opponent, includeReplyMessage){

@@ -8,6 +8,7 @@ var dbUrl = require('../config').mongoDbName,
 
 // the db layer object for tenn16
 module.exports = {
+    getPlayer : getPlayer,
     getPlayers : getPlayers,
     addPlayer : addPlayer,
     moveToPosition : moveToPosition,
@@ -29,8 +30,8 @@ function getPlayer(player, callback){
         player._id = db.ObjectId(player._id)
     }
 
-    db.player.find(player, {password:0}, function(err,a){
-        callback(null, a[0])
+    db.player.find(player, {password:0}, function(err,result){
+        if (callback) callback(null, result[0])
     })
 }
 
@@ -287,4 +288,12 @@ function saveSettings(userId, settings, callback){
     db.player.update({_id : userId},
         { $set : {settings : settings}
     }, callback)
+}
+
+// doesn't write anything to the database, but looks up names from ids
+// in the database
+function invite(invitation, callback){
+    invitation.inviter = db.ObjectId(invitation.inviter);
+    invitation.invited = db.ObjectId(invitation.invited);
+
 }

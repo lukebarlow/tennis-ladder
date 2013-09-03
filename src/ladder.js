@@ -1,4 +1,5 @@
 var db = require('./db'),
+    email = require('./email'),
     url = require('url');
 
 module.exports = {
@@ -6,7 +7,8 @@ module.exports = {
     addMatch : addMatch,
     recentMatches : recentMatches,
     addChallenge : addChallenge,
-    getChallenges : getChallenges
+    getChallenges : getChallenges,
+    invite : invite
 }
 
 //
@@ -40,5 +42,12 @@ function addChallenge(req, res){
 function getChallenges(req, res){
     db.getOutstandingChallenges(function(error, challenges){
         res.send(JSON.stringify(challenges))
+    })
+}
+
+function invite(req, res){
+    var invitation = JSON.parse(url.parse(req.url,true).query.invitation);
+    email.sendInvitationEmails(invitation, function(){
+        res.send('true');
     })
 }
