@@ -54,7 +54,7 @@ function initScore(){
 
 function setScore(selection){
     selection.selectAll('option')
-        .data(d3.range(-1,8))
+        .data(d3.range(-1,13))
         //.data(d3.range(Math.round(Math.random() * 4),8))
         .enter()
         .append('option')
