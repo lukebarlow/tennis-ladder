@@ -5,8 +5,8 @@ function daysToPlay(d){
 }
 
 function challengeText(d){
-    return getName(d.challenger) + ' has challenged ' + getName(d.challenged) + '. '
-            + 'They\'ve got '+daysToPlay(d)+' days to play'
+    return '<b>' + getName(d.challenger) + '</b> has challenged <b>' + getName(d.challenged) + '</b>. '
+            + 'They\'ve got <b>'+daysToPlay(d)+' days</b> to play'
 }
 
 function checkIfChallenged(id){
@@ -25,7 +25,7 @@ function drawChallenges(challenges){
     join.enter()
         .append('div')
         .attr('class','challenge')
-        .text(challengeText)
+        .html(challengeText)
 
     join.exit()
         .transition()
