@@ -150,7 +150,7 @@ function getPlayers(callback){
 }
 
 function getRecentMatches(callback){
-    db.match.find().sort({date:-1}).limit(10, callback)
+    db.match.find().sort({date:-1}).limit(50, callback)
 }
 
 // the format of score is an array of two element arrays. For example
