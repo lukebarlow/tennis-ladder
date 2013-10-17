@@ -1,7 +1,7 @@
 
 function daysToPlay(d){
     var daysGone = Math.floor((Date.now() - d.date) / (1000 * 60 * 60 * 24));
-    return 14 - daysGone;
+    return 28 - daysGone;
 }
 
 function challengeText(d){

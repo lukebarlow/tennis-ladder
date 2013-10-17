@@ -12,8 +12,8 @@ function initScore(){
                 .style('float','left'),
             i = sets.length,
             scoreA = set.append('select').call(setScore);
-        set.append('br')
-        var scoreB = set.append('select').call(setScore)
+        set.append('br');
+        var scoreB = set.append('select').call(setScore);
 
         function changeHandler(){
             if (scoreA.property('value') >= 0 &&
@@ -119,6 +119,7 @@ function drawMatches(matches){
 
     matches.forEach(function(match){
         match.aWins = match.score[0][0] > match.score[0][1];
+        match.isAForfeit = (match.score[0][0] + match.score[0][1] == 1);
     })
 
     var join = d3.select('#matches')
@@ -137,7 +138,7 @@ function drawMatches(matches){
             return formatDate(d.date)
         })
 
-    var tables = containers.append('table')
+    
 
     if (adding){
         
@@ -155,34 +156,65 @@ function drawMatches(matches){
 
     join.exit().remove();
 
-    var rowA = tables.append('tr')
-    var rowB = tables.append('tr')
-    var infoRow = tables.append('tr')
+    var tables = containers.append('table');
 
-    rowA.append('td').html(function(d,i){
-        var name = d.playerA.name;
-        if (d.aWins) name = '<span class=winner>' + name + ' &#10003; </span>'
-        return name;
+    tables.each(function(d,i){
+        var table = d3.select(this);
+
+        if (!d.isAForfeit){
+            var rowA = table.append('tr'),
+                rowB = table.append('tr');
+
+            rowA.append('td').html(function(d,i){
+                var name = d.playerA.name;
+                if (d.aWins) name = '<span class=winner>' + name + ' &#10003; </span>'
+                return name;
+            })
+
+            rowA.selectAll('td.score')
+                .data(function(d,i){return d.score})
+                .enter()
+                .append('td')
+                .text(function(d,i){return d[0]})
+
+            rowB.append('td').html(function(d,i){
+                var name =  d.playerB.name;
+                if (!d.aWins) name = '<span class=winner>' + name + ' &#10003;</span>'
+                return name;
+            })
+
+            rowB.selectAll('td.score')
+                .data(function(d,i){return d.score})
+                .enter()
+                .append('td')
+                .text(function(d,i){return d[1]})
+        }else{
+            table.append('tr').append('td').html('Challenge expired between <b>' + 
+                d.playerA.name + '</b> and <b>' + d.playerB.name + '</b> and so <b>' + 
+                (d.aWins ? d.playerB.name : d.playerA.name) + 
+                '</b> forfeited the match.')
+        }
+
+        
+
     })
 
-    rowA.selectAll('td.score')
-        .data(function(d,i){return d.score})
-        .enter()
-        .append('td')
-        .text(function(d,i){return d[0]})
+    
 
-    rowB.append('td').html(function(d,i){
-        var name =  d.playerB.name;
-        //if (!d.aWins) name = '&#10003; ' + name;
-        if (!d.aWins) name = '<span class=winner>' + name + ' &#10003;</span>'
-        return name;
-    })
+    // rowA.each(function(d,i){
+    //     var row = d3.select(this);
+    //     if (!d.isAForfeit){
+    //         row.selectAll('td.score')
+    //             .data(d.score)
+    //             .enter()
+    //             .append('td')
+    //             .text(function(d,i){return d[0]})
+    //     }else{
+    //         row.append('td').text('FORFEIT')
+    //     }
+    // })
 
-    rowB.selectAll('td.score')
-        .data(function(d,i){return d.score})
-        .enter()
-        .append('td')
-        .text(function(d,i){return d[1]})
+    
 
 
 }

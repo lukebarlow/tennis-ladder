@@ -13,8 +13,10 @@ module.exports = {
 
 //
 function ladder(req, res){
-    db.getPlayers(function(error, players){
-        res.send(JSON.stringify(players));
+    db.checkForExpiredChallenges(function(){
+        db.getPlayers(function(error, players){
+            res.send(JSON.stringify(players));
+        })
     })
 }
 

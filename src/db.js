@@ -20,13 +20,20 @@ module.exports = {
     getOutstandingChallenges : getOutstandingChallenges,
     changePassword : changePassword,
     saveSettings : saveSettings,
-    getSettings : getSettings
+    getSettings : getSettings,
+    checkForExpiredChallenges : checkForExpiredChallenges
 }
 
 
 // private fn. Fills in player info, adding the player if necessary
 function getPlayer(player, callback){
-    if ('_id' in player){
+
+    console.log('......')
+    console.log(player)
+    console.log(typeof(player))
+    console.log(typeof(player._id))
+
+    if ('_id' in player && typeof(player._id) != 'object'){
         player._id = db.ObjectId(player._id)
     }
 
@@ -36,10 +43,11 @@ function getPlayer(player, callback){
 }
 
 // moves the player to the right position, and moves everyone below down
-// one place
-function moveToPosition(playerName, position, callback){
+// one place. The player argument should be a dictionary containing
+// a name or id key sufficient to uniquely identify the player
+function moveToPosition(playerDetails, position, callback){
     // get current position
-    db.player.find({name : playerName}, function(err, players){
+    db.player.find(playerDetails, function(err, players){
         // everything inbetween moves up or down one step
         var player = players[0];
         var move = position > player.ladderPosition ? +1 : -1;
@@ -122,23 +130,12 @@ function winnerAndLoser(match){
     :   { winner : match.playerB, loser : match.playerA }
 }
 
-// adjust the ladder positions of players according to 
+// adjust the ladder positions of players according to match results
 function adjustLadder(match, callback){
     var result = winnerAndLoser(match)
+    // greater ladder position means lower down the ladder
     if (result.winner.ladderPosition > result.loser.ladderPosition){
-        async.parallel([
-            function(callback){
-                db.player.update({_id : result.winner._id},
-                    { $set : {ladderPosition : result.loser.ladderPosition}}, callback)
-            },
-
-            function(callback){
-                db.player.update({_id : result.loser._id},
-                    { $set : {ladderPosition : result.winner.ladderPosition}}, callback)
-            }
-        ], function(error, result){
-            callback();
-        })
+        moveToPosition(result.winner, result.loser.ladderPosition, callback);
     }else{
         callback()
     }
@@ -146,7 +143,12 @@ function adjustLadder(match, callback){
 
 // gets the players, sorted by ladder position
 function getPlayers(callback){
-    db.player.find({},{password:0}).sort({ladderPosition:1}, callback);
+    // check for expired challenges before returning the list of players
+    // console.log('first checking for challenges')
+    // checkForExpiredChallenges(function(){
+    //     console.log('then getting the players')
+        db.player.find({},{password:0}).sort({ladderPosition:1}, callback);
+    //})
 }
 
 function getRecentMatches(callback){
@@ -295,5 +297,31 @@ function saveSettings(userId, settings, callback){
 function invite(invitation, callback){
     invitation.inviter = db.ObjectId(invitation.inviter);
     invitation.invited = db.ObjectId(invitation.invited);
+}
+
+// check the database if any challenges have expired, and if they are then
+// create the forfeit match
+function checkForExpiredChallenges(callback){
+    // check for any challenge over 28 days which is not resolved
+    var expiryPeriod = 1000 * 60 * 60 * 24 * 28;
+    db.challenge.find(
+        {
+            "date" : {"$lt" : Date.now() - expiryPeriod}, 
+            "resolved" : false
+        }, function(error, expiredChallenges){
+            async.eachSeries(expiredChallenges, function(challenge, cb){
+                // for each expired challenge, record a 1-0 match with cahllenger winning
+                var match = {
+                    playerA : challenge.challenger,
+                    playerB : challenge.challenged,
+                    date : challenge.date + expiryPeriod,
+                    score : [  [  1,  0 ] ]
+                }
+                console.log('adding match')
+                console.log(match)
+                addMatch(match, cb);
+            },callback)
+
+        });
 
 }
