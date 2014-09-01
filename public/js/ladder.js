@@ -150,10 +150,7 @@ function drawLadder(ladder){
         .style('left','0px')
         .each(challenge)
         .style('opacity', function(player){
-            //if (!player.daysSincePlayed) return 1
-
-            console.log(player.name, player.daysSincePlayed)
-
+            if (!player.daysSincePlayed) return 1
             if (player.daysSincePlayed > 365) return 0
             if (player.daysSincePlayed > 180) return 0.3
             if (player.daysSincePlayed > 30) return 0.7
