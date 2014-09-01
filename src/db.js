@@ -89,6 +89,7 @@ function moveToPosition(playerDetails, position, callback){
     })
 }
 
+
 function addPlayer(name, password, position, email, callback){
     // check name is unique
     db.player.find({name : name}, function(err, result){
@@ -113,12 +114,14 @@ function addPlayer(name, password, position, email, callback){
                 }
             },
              function(){
-            // then set the position
-            moveToPosition(name, position, callback)
-        })
+                // then set the position
+                moveToPosition({name : name}, position, callback)
+            }
+        )
     })
-    
 }
+
+
 
 // returns player who won the match (returns a full dictionary).
 // For now, the rules are just that the winner for the sake of 
@@ -141,15 +144,32 @@ function adjustLadder(match, callback){
     }
 }
 
+function lastPlayed(playerId, callback){
+    db.match.aggregate([
+                     { $match: { $or : [{"playerA._id" : playerId}, {"playerB._id" : playerId}]} },
+                     { $group: { _id: null, total: { $max: "$date" } } },
+                     { $sort: { total: -1 } }
+                   ], function(error, result){
+                        callback(result.length ? result[0].total : null)
+                   })
+}
+
+
 // gets the players, sorted by ladder position
 function getPlayers(callback){
-    // check for expired challenges before returning the list of players
-    // console.log('first checking for challenges')
-    // checkForExpiredChallenges(function(){
-    //     console.log('then getting the players')
-        db.player.find({},{password:0}).sort({ladderPosition:1}, callback);
-    //})
+    db.player.find({},{password:0}).sort({ladderPosition:1}, function(error, players){
+        async.each(players, function(player, cb){
+            lastPlayed(player._id, function(_lastPlayed){
+                player.lastPlayed = _lastPlayed;
+                player.daysSincePlayed = _lastPlayed ? Math.round((new Date() - new Date(_lastPlayed)) / (1000 * 60 * 60 * 24)) : null
+                cb();
+            })
+        }, function(){
+            callback(error, players)
+        })
+    });
 }
+
 
 function getRecentMatches(callback){
     db.match.find().sort({date:-1}).limit(50, callback)

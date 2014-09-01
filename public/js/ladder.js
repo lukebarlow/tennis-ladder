@@ -7,7 +7,7 @@ function challengeConfirmText(challenge){
     var challenged = getName(challenge.challenged);
     return 'You are about to challenge ' + challenged + '.' +
             'This means ' + challenged + ' must accept this challenge ' +
-            'within 14 days and play a match, or forfeit his or her position in the ladder. ' +
+            'within 28 days and play a match, or forfeit his or her position in the ladder. ' +
             'You will both be emailed to confirm the challenge.'
 
 }
@@ -21,6 +21,10 @@ function invitationText(invitation){
 }
 
 function drawLadder(ladder){
+
+    ladder = ladder.filter(function(rung){
+        return rung.daysSincePlayed == null || rung.daysSincePlayed <= 365
+    })
 
     function top(d,i){return i*20 + 'px'}
     function name(d,i){
@@ -145,4 +149,16 @@ function drawLadder(ladder){
         .style('top',top)
         .style('left','0px')
         .each(challenge)
+        .style('opacity', function(player){
+            //if (!player.daysSincePlayed) return 1
+
+            console.log(player.name, player.daysSincePlayed)
+
+            if (player.daysSincePlayed > 365) return 0
+            if (player.daysSincePlayed > 180) return 0.3
+            if (player.daysSincePlayed > 30) return 0.7
+            return 1
+
+       
+        })
 }
