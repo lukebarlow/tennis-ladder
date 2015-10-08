@@ -1,6 +1,6 @@
 var dbUrl = require('../config').mongoDbName,
     collections = ['player','match','challenge'],
-    db = require('mongojs').connect(dbUrl, collections),
+    db = require('mongojs')(dbUrl, collections),
     async = require('async'),
     md5 = require('MD5')
     email = require('./email'),

@@ -3,14 +3,14 @@
   "description": "A one page tennis ladder website",
   "version": "0.1.0",
   "dependencies": {
+    "MD5": "latest",
+    "async": "latest",
     "express": "3.x",
-    "mongojs" : "latest",
-    "MD5" : "latest",
-    "nodemailer" : "latest",
-    "async" : "latest"
+    "mongojs": "^1.4.0",
+    "nodemailer": "latest"
   },
   "devDependencies": {
-     "mocha": "latest", 
-     "should": "latest" 
+    "mocha": "latest",
+    "should": "latest"
   }
 }

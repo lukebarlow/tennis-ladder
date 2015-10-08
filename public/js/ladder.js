@@ -151,11 +151,10 @@ function drawLadder(ladder){
         .each(challenge)
         .style('opacity', function(player){
             if (!player.daysSincePlayed) return 1
-            if (player.daysSincePlayed > 365) return 0
-            if (player.daysSincePlayed > 180) return 0.3
-            if (player.daysSincePlayed > 30) return 0.7
+            if (player.daysSincePlayed > 273) return 0 // 9 months
+            if (player.daysSincePlayed > 30){
+                return (243 - (player.daysSincePlayed - 30)) / 243
+            }
             return 1
-
-       
         })
 }
