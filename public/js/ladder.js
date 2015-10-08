@@ -23,7 +23,7 @@ function invitationText(invitation){
 function drawLadder(ladder){
 
     ladder = ladder.filter(function(rung){
-        return rung.daysSincePlayed == null || rung.daysSincePlayed <= 365
+        return rung.daysSincePlayed == null || rung.daysSincePlayed <= 273
     })
 
     function top(d,i){return i*20 + 'px'}
